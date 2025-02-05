@@ -4,6 +4,8 @@ const initialState = {
   isExpanded: false,
   isComposeExpanded: false,
   activeTab: "Inbox",
+  user: null,
+  emails: []
 };
 
 const appSlice = createSlice({
@@ -19,8 +21,14 @@ const appSlice = createSlice({
     setActiveTab: (state, action) => {
       state.activeTab = action.payload;
     },
+    setUser: (state, action) => {
+      state.user = action.payload;
+    },
+    setEmails: (state, action) => {
+      state.emails = action.payload;
+    }
   },
 });
 
-export const { toggleSidebar, setIsComposeExpanded, setActiveTab } = appSlice.actions;
+export const { toggleSidebar, setIsComposeExpanded, setActiveTab, setUser, setEmails } = appSlice.actions;
 export default appSlice.reducer;

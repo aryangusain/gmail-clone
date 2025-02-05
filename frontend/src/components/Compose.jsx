@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { BiTrash } from 'react-icons/bi'
 import { BsPaperclip } from 'react-icons/bs'
 import { FaCaretDown } from 'react-icons/fa'
@@ -11,12 +11,47 @@ import { PiDotsThreeVertical } from 'react-icons/pi'
 import { RxCross2 } from 'react-icons/rx'
 import { VscChromeMinimize } from 'react-icons/vsc'
 import { useDispatch, useSelector } from 'react-redux'
-import { setIsComposeExpanded } from '../store/appSlice'
+import { setIsComposeExpanded, setEmails } from '../store/appSlice'
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
 function Compose() {
   const dispatch = useDispatch();
+  const emails = useSelector(state => state.app.emails);
   const isComposeExpanded = useSelector(state => state.app.isComposeExpanded);
-  console.log(isComposeExpanded);
+
+  const [formData, setFormData] = useState({
+    to: "",
+    subject: "",
+    message: ""
+  });
+
+  const handleChange = (e) => {
+    setFormData({...formData, [e.target.name]: e.target.value});
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    dispatch(setIsComposeExpanded(false));
+
+    try {
+      const res = await axios.post('http://localhost:3000/api/v1/email/create', formData, {
+        headers: {
+          'Content-Type': "application/json"
+        },
+        withCredentials: true
+      })
+
+      if(res.data.success) {
+        dispatch(setEmails([...emails, res.data.email]));
+        toast.success(res.data.message, {duration: 4000});
+      }
+    }
+    catch(error) {
+      console.log(error);
+      toast.error(res.data.message, {duration: 4000});
+    }
+  }
 
   return (
     <div className={`shadow-xl rounded-lg bg-white overflow-hidden min-w-fit ${isComposeExpanded ? " block " : " hidden "}`}>
@@ -30,15 +65,15 @@ function Compose() {
         </div>
 
         <form className='flex flex-col px-3 min-w-fit'>
-            <input type='text' placeholder="To" className='outline-none border-b-2 text-sm py-2 border-b-[#f5f5f5]'/>
-            <input type='text' placeholder="Subject" className='outline-none border-b-2 text-sm py-2 border-b-[#f5f5f5]'/>
-            <textarea rows={14} cols={60}  className='resize-none scroll-light outline-none py-2 text-sm'></textarea>
+            <input type='text' onChange={handleChange} name='to' value={formData.to} placeholder="To" className='outline-none border-b-2 text-sm py-2 border-b-[#f5f5f5]'/>
+            <input type='text' onChange={handleChange} name='subject' value={formData.subject} placeholder="Subject" className='outline-none border-b-2 text-sm py-2 border-b-[#f5f5f5]'/>
+            <textarea rows={14} cols={60} onChange={handleChange} name='message' value={formData.message} className='resize-none scroll-light outline-none py-2 text-sm'></textarea>
         </form>
 
         <div className='flex justify-between items-center py-4 px-3'>
             <div className='flex gap-3'>
                
-                <div className='flex items-center rounded-full h-9 w-fit gap-2 text-sm px-4 bg-[#0c57cc] text-white font-semibold cursor-pointer hover:shadow-sm hover:shadow-[#0f57ff]'>
+                <div onClick={handleSubmit} className='flex items-center rounded-full h-9 w-fit gap-2 text-sm px-4 bg-[#0c57cc] text-white font-semibold cursor-pointer hover:shadow-sm hover:shadow-[#0f57ff]'>
                     <p>Send</p>
                     <div classname='min-h-10 border-8 border-black'> </div>
                     <FaCaretDown size={14}/>

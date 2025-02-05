@@ -6,6 +6,7 @@ import Body from "./components/Body";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Compose from "./components/Compose";
+import { Toaster } from "react-hot-toast";
 
 const appRouter = createBrowserRouter([
   {
@@ -41,6 +42,7 @@ function App() {
         <div className={`absolute duration-300 min-w-fit bottom-0 right-20 z-10`}>
           <Compose />
         </div>
+        <Toaster />
       </div>
   )
 }
